@@ -1,10 +1,14 @@
 import React, { Component } from "react";
 import { getMovies } from "../services/fakeMovieService";
 import Movie from "./movie";
+import Pagination from "./common/pagination";
+import { paginate } from "../utils/paginate";
 
 class Movies extends Component {
     state = {
-        movies: []
+        movies: [],
+        pageSize: 4,
+        currentPage: 1
     };
 
     componentDidMount() {
@@ -17,6 +21,10 @@ class Movies extends Component {
         this.setState({ movies: newMovies });
     };
 
+    handlePageChange = page => {
+        this.setState({ currentPage: page });
+    };
+
     handleLike = movie => {
         const movies = [...this.state.movies];
         const index = movies.indexOf(movie);
@@ -26,14 +34,15 @@ class Movies extends Component {
     };
 
     render() {
-        const { movies } = this.state;
+        const { movies: allMovies, pageSize, currentPage } = this.state;
 
-        if (movies.length === 0) {
+        if (allMovies.length === 0) {
             return <h1>No movies available</h1>;
         } else {
+            const movies = paginate(allMovies, currentPage, pageSize);
             return (
                 <div>
-                    <h1>Showing {movies.length} movies in the database</h1>
+                    <h1>Showing {allMovies.length} movies in the database</h1>
                     <table className="table">
                         <thead>
                             <tr>
@@ -65,6 +74,12 @@ class Movies extends Component {
                             })}
                         </tbody>
                     </table>
+                    <Pagination
+                        itemsCount={allMovies.length}
+                        pageSize={pageSize}
+                        currentPage={currentPage}
+                        onPageChange={this.handlePageChange}
+                    />
                 </div>
             );
         }
